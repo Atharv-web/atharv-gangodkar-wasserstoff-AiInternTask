@@ -12,8 +12,8 @@ rcts_model = RecursiveCharacterTextSplitter(chunk_size = 1000,chunk_overlap= 200
 
 index = faiss.IndexFlatL2(768) # we are using nomic embed text model, hence embedding_size = 768
 
-UPLOAD_FOLDER = "backend/data/uploads"
-DATABASE_NAME = 'backend/data/VECTOR_STORE'
+UPLOAD_FOLDER = "data/uploads"
+DATABASE_NAME = 'data/VECTOR_STORE'
 
 def load_pdf_data(filepath):
     for file in filepath:
@@ -40,7 +40,7 @@ def semantic_search(query,k=3):
     vecdb = FAISS.load_local(
         DATABASE_NAME,
         embeddings = embedder_model,
-        allow_dangerous_deserializaton = True
+        allow_dangerous_deserialization = True
     )
 
     retriever = vecdb.as_retriever(k=3)

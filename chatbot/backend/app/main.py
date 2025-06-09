@@ -6,7 +6,7 @@ from app.services.query import answer_question_with_themes
 
 
 app = Flask(__name__)
-UPLOAD_FOLDER = os.path.join(os.getcwd(), "backend", "data", "uploads")
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "data", "uploads")
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'txt'}
 # app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)

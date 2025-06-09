@@ -5,26 +5,14 @@ import json
 from dotenv import load_dotenv
 
 load_dotenv()
-# genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-# model = genai.GenerativeModel("gemini-pro")
 
 model = ChatOllama(model='qwen2.5:14b')
 
 def get_answer_and_themes(query, retrieved_docs):
-    """
-    Generate answers and identify themes using Gemini based on query and context.
-    Each document chunk must have: file_path, paragraph_number, chunk (text content).
-    """
 
     formatted_context = "\n".join(
         f" Context: {doc.page_content}\nMetadata: {doc.metadata}" for doc in retrieved_docs
     )
-
-    # Format context
-    # formatted_context = "\n".join(
-    #     f"Document: {doc['file_path']}\nParagraph: {doc['paragraph_number']}\nText: {doc['chunk']}\n"
-    #     for doc in retrieved_docs
-    # )
 
     # Prompt
     prompt = f"""
@@ -53,33 +41,32 @@ Respond in **valid JSON** using the format:
 {{
   "answers": [
     {{
-      "DOCUMENT ID": "answer using the formatted context",
-      "EXTRACTED ANSWER": "answer using the formatted context"
-      "CITATION": "answer using the formatted context",
+      "document_id": ...,
+      "extracted_answer": ...,
+      "citation": ...,
     }},
     ...
   ],
   "themes": [
     {{
-      "Theme": "Theme Name",
-      "Summary": "Brief summary of the theme...",
+      "theme": "Theme Name",
+      "summary": "Brief summary of the theme...",
     }},
     ...
   ]
 }}
 """
 
-    # Run Gemini call
+    # Run Model call
     response = model.invoke(prompt)
 
     try:
-        return eval(response.content)  # Use `json.loads()` if you're confident about strict JSON output
+        return json.loads(response.content)
     except Exception as e:
         return {
             "answers": [],
             "themes": [{
                 "theme": "ParsingError",
-                "summary": f"Could not parse Gemini response. Error: {str(e)}",
-                "citations": []
+                "summary": f"Could not parse model response. Error: {str(e)}",
             }]
         }
