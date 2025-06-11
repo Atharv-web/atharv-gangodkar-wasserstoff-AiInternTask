@@ -1,9 +1,12 @@
 
 from langchain_ollama import OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_community.document_loaders import PyMuPDFLoader,TextLoader
 from langchain_community.vectorstores import FAISS
 from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_core.documents import Document
+from PIL import Image
+import pytesseract
 import faiss
 import os
 
@@ -15,13 +18,33 @@ index = faiss.IndexFlatL2(768) # we are using nomic embed text model, hence embe
 UPLOAD_FOLDER = "data/uploads"
 DATABASE_NAME = 'data/VECTOR_STORE'
 
-def load_pdf_data(filepath):
-    for file in filepath:
-        file_path = os.path.join(UPLOAD_FOLDER,file)
-        pdf_loader = PyMuPDFLoader(file_path=file_path)
-        pdf_loaded_docs = pdf_loader.load()
-        chunked_docs = rcts_model.split_documents(pdf_loaded_docs)
+def load_data(filepaths: list[str]):
+    all_documents = []
+    for file_path in filepaths:
+        file_extension = os.path.splitext(file_path)[1].lower()
+        if file_extension == ".pdf":
+            loader = PyMuPDFLoader(file_path=file_path)
+            all_documents.extend(loader.load())
+        elif file_extension == ".txt":
+            loader = TextLoader(file_path=file_path)
+            all_documents.extend(loader.load())
+        elif file_extension in [".png", ".jpg", ".jpeg"]:
+            try:
+                image = Image.open(file_path)
+                text_content = pytesseract.image_to_string(image)
+                # Create a Langchain Document
+                document = Document(page_content=text_content, metadata={"source": file_path})
+                all_documents.append(document)
+            except Exception as e:
+                print(f"Error processing image file {file_path}: {e}")
+        else:
+            print(f"Unsupported file type: {file_extension} for file {file_path}")
 
+
+    if not all_documents:
+        return [] #returning empty list if nothing is processed.
+
+    chunked_docs = rcts_model.split_documents(all_documents)
     return chunked_docs
 
 def embed_and_index(loaded_docs):
