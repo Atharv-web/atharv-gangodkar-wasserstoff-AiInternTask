@@ -1,4 +1,4 @@
-<!-- === FILE: frontend/templates/index.html === -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,7 +71,7 @@
 
         answersTable.innerHTML = '';
         data.answers.forEach(a => {
-            const row = `<tr><td>${a.document_id}</td><td>${a.extracted_answer}</td><td>${a.citation}</td></tr>`;
+            const row = `<tr><td>${a.document_id}</td><td>${a.extracted_answers}</td><td>${a.citation}</td></tr>`;
             answersTable.innerHTML += row;
         });
 

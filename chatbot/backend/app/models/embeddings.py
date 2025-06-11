@@ -17,11 +17,10 @@ DATABASE_NAME = 'data/VECTOR_STORE'
 
 def load_pdf_data(filepath):
     for file in filepath:
-        if file.endswith('.pdf'):
-            file_path = os.path.join(UPLOAD_FOLDER,file)
-            pdf_loader = PyMuPDFLoader(file_path=file_path)
-            pdf_loaded_docs = pdf_loader.load()
-            chunked_docs = rcts_model.split_documents(pdf_loaded_docs)
+        file_path = os.path.join(UPLOAD_FOLDER,file)
+        pdf_loader = PyMuPDFLoader(file_path=file_path)
+        pdf_loaded_docs = pdf_loader.load()
+        chunked_docs = rcts_model.split_documents(pdf_loaded_docs)
 
     return chunked_docs
 
@@ -36,13 +35,13 @@ def embed_and_index(loaded_docs):
     vector_store.add_documents(loaded_docs)
     vector_store.save_local(DATABASE_NAME)
 
-def semantic_search(query,k=3):
+def semantic_search(query,k=1):
     vecdb = FAISS.load_local(
         DATABASE_NAME,
         embeddings = embedder_model,
         allow_dangerous_deserialization = True
     )
 
-    retriever = vecdb.as_retriever(k=3)
+    retriever = vecdb.as_retriever(k=1)
     retrieved_docs = retriever.invoke(query)
     return retrieved_docs

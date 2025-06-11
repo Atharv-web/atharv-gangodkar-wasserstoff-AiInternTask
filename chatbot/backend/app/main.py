@@ -3,12 +3,13 @@ from werkzeug.utils import secure_filename
 import os
 from app.services.vector_db import process_and_store_documents
 from app.services.query import answer_question_with_themes
-
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "data", "uploads")
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'txt'}
-# app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
