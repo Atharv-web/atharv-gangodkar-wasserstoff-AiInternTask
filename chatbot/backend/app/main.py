@@ -32,8 +32,7 @@ def upload_files():
             file_paths.append(path)
 
     process_and_store_documents(file_paths)
-    if process_and_store_documents:
-        return jsonify({"message": "Documents uploaded and processed."})
+    return jsonify({"message": "Documents uploaded and processed."})
 
 @app.route("/ask", methods=["POST"])
 def ask_question():
