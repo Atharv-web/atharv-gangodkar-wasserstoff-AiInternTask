@@ -50,30 +50,11 @@ Return your answer in this JSON format:
     # Run Model call
     response = model.invoke(prompt)
     try:
-        # Clean the response content to ensure it's valid JSON
-        content = response.content.strip()
-        # Remove any markdown code block indicators if present
-        content = content.replace('```json', '').replace('```', '').strip()
-        
+        answer = response.content
+        content = answer.replace('```json', '').replace('```', '').strip()
         result = json.loads(content)
-        
-        # Validate the structure
-        if not isinstance(result, dict):
-            raise ValueError("Response is not a dictionary")
-        if "answers" not in result or "themes" not in result:
-            raise ValueError("Missing required fields in response")
-            
         return result
-    except json.JSONDecodeError as e:
-        print(f"JSON Decode Error: {str(e)}")
-        print(f"Raw response: {response.content}")
-        return {
-            "answers": [],
-            "themes": [{
-                "theme": "JSONParsingError",
-                "summary": "Failed to parse the model's response into valid JSON format",
-            }]
-        }
+    
     except Exception as e:
         print(f"Unexpected error: {str(e)}")
         return {
