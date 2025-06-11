@@ -38,8 +38,6 @@ EXTENSION_HANDLER_MAP = {
 }
 
 def load_user_data(filenames: List[str]) -> List[Document]:
-    chunked_docs = []
-
     for file in filenames:
         file_path = os.path.join(UPLOAD_FOLDER, file)
         ext = os.path.splitext(file)[1].lower()
@@ -48,10 +46,9 @@ def load_user_data(filenames: List[str]) -> List[Document]:
         if handler:
             try:
                 docs = handler(file_path)
-                chunked_docs.extend(docs)
             except Exception as e:
                 print(f"Error processing {file}: {e}")
         else:
             print(f"Unsupported file type: {file}")
 
-    return chunked_docs
+    return docs

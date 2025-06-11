@@ -6,14 +6,14 @@ load_dotenv()
 
 API_KEY = os.environ['GEMINI_API_KEY']
 model = ChatGoogleGenerativeAI(model='gemini-2.0-flash',api_key = API_KEY)
+# model = ChatOllama(model="qwen2.5:14b")
 
 def get_answer_and_themes(query, retrieved_docs):
 
     formatted_context = "\n".join(
         f" Context: {doc.page_content}\nMetadata: {doc.metadata}" for doc in retrieved_docs
     )
-
-    # Prompt
+    
     prompt = f"""
 
 You are a Document Research Chatbot.
@@ -25,42 +25,51 @@ Here are relevant excerpts from documents extracted:
 
 {formatted_context}
 
-Instructions:
-- Carefully read all provided context and metadata.
-- Synthesize a single, comprehensive answer to the user's question, using the most relevant information from the context.
-- Do NOT provide one answer per document just ONE best answer.
-- If possible, indicate the source document's name and citation (from metadata) that supports your answer.
-- Also, identify the main theme or topic in discussion.
+Your task:
+1. Provide a concise answer that is relevant to the query.
+2. Each answer, must include:
+   - document_id (use title from metadata in formatted_context)
+   - extracted_answer (the extracted content from the document)
+   - citation (e.g., page number, paragraph reference, from metadata)
+3. Identify the theme from the context:
+   - Provide the theme title
+   - Give a brief summary
 
 Return your answer in this JSON format:
 
 {{
-    "answers": {{
-        "document_id": "...",     
-        "extracted_answer": "...",
-        "citation": "..."
-    }},
-    "themes": {{
-        "theme": "...",
-        "summary": "..."
+  "answers": [
+    {{
+      "document_id" : "use information from metadata in formatted_context",
+      "extracted_answers" : "the extracted content from the document",
+      "citation" : "page number, paragraph reference, from metadata"
     }}
+  ],
+  "themes": [
+    {{
+      "theme" : "Theme title",
+      "summary" : "Brief Summary abt the extracted answer and theme"
+    }}
+  ]
 }}
 
 """
-    # Run Model call
+    # # Run Model call
     response = model.invoke(prompt)
     try:
-        answer = response.content
-        content = answer.replace('```json', '').replace('```', '').strip()
+        # Clean the response content and parse JSON
+        content = response.content.strip()
+        # Remove any markdown code block indicators if present
+        content = content.replace('```json', '').replace('```', '').strip()
         result = json.loads(content)
         return result
     
-    except Exception as e:
-        print(f"Unexpected error: {str(e)}")
+    except json.JSONDecodeError as e:
+        print(f"JSON parsing error: {str(e)}")
         return {
             "answers": [],
             "themes": [{
                 "theme": "Error",
-                "summary": f"An unexpected error occurred: {str(e)}",
+                "summary": f"Failed to parse model response as JSON: {str(e)}",
             }]
         }
