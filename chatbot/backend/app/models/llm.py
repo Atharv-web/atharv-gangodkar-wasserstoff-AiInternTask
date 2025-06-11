@@ -1,5 +1,3 @@
-import google.generativeai as genai
-from langchain_ollama import ChatOllama
 from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 import json
@@ -10,10 +8,6 @@ API_KEY = os.environ['GEMINI_API_KEY']
 model = ChatGoogleGenerativeAI(model='gemini-2.0-flash',api_key = API_KEY)
 
 def get_answer_and_themes(query, retrieved_docs):
-    """
-    Generate answers and identify themes using Gemini based on query and context.
-    Each document chunk must have: file_path, paragraph_number, chunk (text content).
-    """
 
     formatted_context = "\n".join(
         f" Context: {doc.page_content}\nMetadata: {doc.metadata}" for doc in retrieved_docs
@@ -21,7 +15,8 @@ def get_answer_and_themes(query, retrieved_docs):
 
     # Prompt
     prompt = f"""
-You are a Document Research & Theme Identification Chatbot.
+
+You are a Document Research Chatbot.
 
 A user asked:
 "{query}"
@@ -30,30 +25,27 @@ Here are relevant excerpts from documents extracted:
 
 {formatted_context}
 
-Remember this: 
-Use the metadata from the formatted context to get the name of the document for DOCUMENT ID by checking the title.
-Use the metadata from the formatted context to get the CITATION by checking the page number.
-Use the context from formatted context to get the EXTRACTED ANSWER.
-Use the user query and context from formatted context to identify the theme or topic in discussion
+Instructions:
+- Carefully read all provided context and metadata.
+- Synthesize a single, comprehensive answer to the user's question, using the most relevant information from the context.
+- Do NOT provide one answer per document just ONE best answer.
+- If possible, indicate the source document's name and citation (from metadata) that supports your answer.
+- Also, identify the main theme or topic in discussion.
 
-the content u generate must be in this json format:
+Return your answer in this JSON format:
 
-this format to be followed is:
 {{
-    "answers": [
-        {{
-            "document_id": ...,
-            "extracted_answers": ...,
-            "citation": ...
-        }}
-    ],
-    "themes": [
-        {{
-            "theme": ...,
-            "summary": ...
-        }}
-    ]
+    "answers": {{
+        "document_id": "...",     
+        "extracted_answer": "...",
+        "citation": "..."
+    }},
+    "themes": {{
+        "theme": "...",
+        "summary": "..."
+    }}
 }}
+
 """
     # Run Model call
     response = model.invoke(prompt)
@@ -62,7 +54,7 @@ this format to be followed is:
         content = response.content.strip()
         # Remove any markdown code block indicators if present
         content = content.replace('```json', '').replace('```', '').strip()
-        # Parse the JSON
+        
         result = json.loads(content)
         
         # Validate the structure

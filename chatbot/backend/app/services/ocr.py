@@ -1,33 +1,21 @@
-# import pytesseract
-# import fitz  # PyMuPDF
-# from PIL import Image
-# import os
-# from app.models.embeddings import embed_and_index
+import pytesseract
+from PIL import Image
+import os
+from langchain_core.documents import Document
+pytesseract.pytesseract.run_tesseract
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-# def extract_text_from_file(filepath):
-#     text = ""
-#     if filepath.lower().endswith(".pdf"):
-#         pdf_doc = fitz.open(filepath)
-#         for page in pdf_doc:
-#             text += page.get_text()
-#             # fallback to OCR if empty
-#             if not page.get_text(strip=True):
-#                 pix = page.get_pixmap()
-#                 img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-#                 text += pytesseract.image_to_string(img)
-#     elif filepath.lower().endswith((".jpg", ".png", ".jpeg")):
-#         img = Image.open(filepath)
-#         text += pytesseract.image_to_string(img)
-#     elif filepath.lower().endswith(".txt"):
-#         with open(filepath, "r", encoding="utf-8") as f:
-#             text += f.read()
-#     return {"file_path": filepath, "content": text}
+rcts = RecursiveCharacterTextSplitter(chunk_size = 1000,chunk_overlap= 200)
 
-# def process_and_store_documents(filepaths):
-#     docs = [extract_text_from_file(path) for path in filepaths]
-#     embed_and_index(docs)
+def extract_text_from_pics(filepath):
+    text = ""
+    for file in filepath:
+        if file.lower().endswith((".jpg", ".png", ".jpeg")):
+            file_path = os.path.join(filepath,file)
+            img = Image.open(file_path)
+            text += pytesseract.image_to_string(img)
 
-# ========================================================
+            img_text = Document(page_content=text,metadata = {"file_path":file_path})
 
-
-
+    chunked_img_docs = rcts.split_documents(img_text)
+    return chunked_img_docs
