@@ -1,76 +1,113 @@
-# Document Q&A Chatbot Backend
+# Document Q&A Chatbot
 
-This is the backend application for the Document Q&A Chatbot. It provides API endpoints for document processing and question answering.
+This repository contains a Document Q&A Chatbot backend built with Python and Flask. It provides API endpoints for uploading documents and asking questions about their content using modern AI and vector search technologies.
 
-## Environment Variables
+## Features
 
-Create a `.env` file in the root directory with the following variables:
+- Upload PDF, image (PNG, JPG, JPEG), or TXT files for analysis
+- Ask questions about uploaded documents and receive AI-generated answers
+- Supports OCR for images and advanced text embeddings
+- Uses FAISS for fast vector similarity search
+- Integrates with Google Generative AI and Anthropic models
+
+## Directory Structure
 
 ```
-# API Keys
-GOOGLE_API_KEY=your_google_api_key_here
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-
-# Application Settings
-FLASK_ENV=development
-FLASK_APP=app.main
-SECRET_KEY=your_secret_key_here
-
-# Database Settings
-VECTOR_DB_PATH=./data/vector_db
-
-# File Upload Settings
-MAX_CONTENT_LENGTH=16777216  # 16MB in bytes
-UPLOAD_FOLDER=./data/uploads
-
-# Model Settings
-EMBEDDING_MODEL=all-MiniLM-L6-v2  # Default sentence transformer model
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
+chatbot/
+  ├── my_project/           # Main application code
+  ├── requirements.txt      # Python dependencies
+  ├── README.md             # Project documentation
+  └── .gitignore
 ```
 
-## Setup
+## Getting Started
 
-1. Create a virtual environment:
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Atharv-web/atharv-gangodkar-wasserstoff-AiInternTask.git
+cd atharv-gangodkar-wasserstoff-AiInternTask/chatbot
+```
+
+### 2. Set up a virtual environment
+
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # (On Windows: venv\Scripts\activate)
 ```
 
-2. Install dependencies:
+### 3. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Create required directories:
+### 4. Configuration
+
+Create a `.env` file in the `chatbot` directory with the following environment variables:
+
+```
+GOOGLE_API_KEY=your_google_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+FLASK_ENV=development
+FLASK_APP=app.main
+SECRET_KEY=your_secret_key_here
+VECTOR_DB_PATH=./data/vector_db
+MAX_CONTENT_LENGTH=16777216
+UPLOAD_FOLDER=./data/uploads
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+CHUNK_SIZE=1000
+CHUNK_OVERLAP=200
+```
+
+### 5. Create necessary directories
+
 ```bash
 mkdir -p data/uploads
 mkdir -p data/vector_db
 ```
 
-4. Start the development server:
+### 6. Run the app
+
 ```bash
 flask run
 ```
 
-The server will be available at `http://localhost:5000`
+The server will be available at [http://localhost:5000](http://localhost:5000).
 
 ## API Endpoints
 
-- POST `/upload` - Upload and process documents
-  - Accepts multipart/form-data with 'documents' field
-  - Supports PDF, PNG, JPG, JPEG, and TXT files
+- `POST /upload`  
+  Upload and process documents (form field: `documents`).  
+  Supported: PDF, PNG, JPG, JPEG, TXT.
 
-- POST `/ask` - Ask questions about uploaded documents
-  - Accepts form data with 'question' field
-  - Returns JSON response with answer
+- `POST /ask`  
+  Ask questions about uploaded documents (form field: `question`).  
+  Returns a JSON answer.
+
+## Deployment
+
+You can deploy this backend to Render or any other cloud provider that supports Python web services.  
+Make sure to set all environment variables in your hosting dashboard.
 
 ## Dependencies
 
-- Flask - Web framework
-- FAISS - Vector similarity search
-- Sentence Transformers - Text embeddings
-- PyTesseract - OCR for images
-- PyMuPDF - PDF processing
-- Google Generative AI - Language model
-- LangChain - AI framework 
+- Flask
+- FAISS
+- sentence-transformers
+- pytesseract
+- pymupdf
+- pillow
+- google-generativeai
+- python-dotenv
+- langchain (+ community, core, ollama, google-genai, anthropic)
+
+See `chatbot/requirements.txt` for the full list.
+
+## License
+
+[MIT](LICENSE) (or specify your license)
+
+---
+
+**Contributions are welcome!**
