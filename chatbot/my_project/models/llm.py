@@ -1,11 +1,12 @@
 
 from langchain_ollama import ChatOllama
-import os
 import json
 from dotenv import load_dotenv
 load_dotenv()
 
-model = ChatOllama(model="qwen2.5:14b")
+def model_call():
+  model = ChatOllama(model="qwen2.5:14b")
+  return model
 
 def get_answer_and_themes(query, retrieved_docs):
 
@@ -53,6 +54,7 @@ Return your answer in this JSON format:
 }}
 
 """
+    model = model_call()
     # # Run Model call
     response = model.invoke(prompt)
     try:
