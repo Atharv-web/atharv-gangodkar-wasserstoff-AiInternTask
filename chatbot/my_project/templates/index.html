@@ -40,6 +40,17 @@
             <h5>Themes</h5>
             <ul id="themesList"></ul>
         </div>
+
+        <div class="container mt-5">
+            <h2>Chat with the Chatbot</h2>
+            <div id="chatWindow" style="height: 300px; overflow-y: auto; background: #f8f8f8; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+              <!-- Chat history will appear here -->
+            </div>
+            <form id="chatForm" class="d-flex">
+              <input type="text" class="form-control me-2" id="chatMessage" placeholder="Type your message..." required>
+              <button type="submit" class="btn btn-primary">Send</button>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -48,6 +59,8 @@
     const queryForm = document.getElementById('queryForm');
     const answersTable = document.getElementById('answersTable').querySelector('tbody');
     const themesList = document.getElementById('themesList');
+    const chatForm = document.getElementById('chatForm');
+    const chatWindow = document.getElementById('chatWindow');
 
     uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -81,6 +94,31 @@
             themesList.innerHTML += li;
         });
     });
+
+
+    chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const messageInput = document.getElementById('chatMessage');
+    const userMessage = messageInput.value.trim();
+    if (!userMessage) return;
+
+    // Display user message
+    chatWindow.innerHTML += `<div><strong>You:</strong> ${userMessage}</div>`;
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+
+    const res = await fetch('/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userMessage})
+    });
+    const data = await res.json();
+    
+    // Display bot message
+    chatWindow.innerHTML += `<div><strong>Bot:</strong> ${data.response}</div>`;
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    messageInput.value = '';
+    });
+
 </script>
 </body>
 </html>

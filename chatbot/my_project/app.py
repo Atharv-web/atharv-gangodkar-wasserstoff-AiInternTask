@@ -1,8 +1,9 @@
 from flask import Flask, request, render_template, jsonify
+from langchain_core.messages import HumanMessage,AIMessage
 from werkzeug.utils import secure_filename
 import os
 from services.vector_db import process_and_store_documents
-from services.query import answer_question_with_themes
+from services.query import answer_question_with_themes,chatbot
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -12,6 +13,8 @@ UPLOAD_FOLDER = os.path.join(os.getcwd(), "data", "uploads")
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'txt'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+session_history = []
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -42,6 +45,25 @@ def ask_question():
 
     result = answer_question_with_themes(user_question)
     return jsonify(result)
+
+@app.route("/chat", methods=["POST"])
+def chat():
+    user_message = request.json.get("message")
+    if not user_message:
+        return jsonify({"error": "No message provided."}), 400
+    
+    session_history.append(HumanMessage(content=user_message))
+
+    try:
+        bot_response = chatbot(session_history)
+        session_history.append(AIMessage(content=bot_response))
+        return jsonify({"response": bot_response})
+    
+    except Exception as e:
+        return jsonify({
+            "response": "⚠️ Sorry, an unexpected error occurred.",
+            "error": str(e)
+        }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
