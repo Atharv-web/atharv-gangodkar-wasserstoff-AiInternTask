@@ -29,9 +29,6 @@ def embed_and_index(loaded_docs):
     vecdb.save_local(DATABASE_NAME)
     # Add documents to the vector store
     vecdb.add_documents(loaded_docs)
-    
-    # Save the vector store
-    # vecdb.save_local(DATABASE_NAME)
 
 def semantic_search(query):
     global vecdb
@@ -48,7 +45,7 @@ def semantic_search(query):
             )
         
         retriever = vecdb.as_retriever(
-            search_kwargs={"k": 3}  # Limit to top 3 most relevant documents
+            search_kwargs={"k": 3}
         )
         retrieved_docs = retriever.invoke(query)
         return retrieved_docs

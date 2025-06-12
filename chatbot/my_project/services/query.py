@@ -1,7 +1,5 @@
 from models.llm import get_answer_and_themes,model_call
 from models.embeddings import semantic_search
-from langchain_core.messages import HumanMessage,AIMessage
-import json
 
 def answer_question_with_themes(query):
     top_docs = semantic_search(query)

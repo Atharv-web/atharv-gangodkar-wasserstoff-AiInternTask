@@ -24,12 +24,6 @@
 
         <hr class="my-4">
 
-        <form id="queryForm">
-            <label for="question" class="form-label">Ask a Question About your uploaded file/doc</label>
-            <input type="text" class="form-control" id="question" name="question" required>
-            <button type="submit" class="btn btn-success mt-2">Submit</button>
-        </form>
-
         <div class="output mt-4">
             <h5>Answers</h5>
             <table class="table table-bordered" id="answersTable">
@@ -42,14 +36,29 @@
         </div>
 
         <div class="container mt-5">
-            <h2>Chat with the Chatbot</h2>
-            <div id="chatWindow" style="height: 300px; overflow-y: auto; background: #f8f8f8; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-              <!-- Chat history will appear here -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0">Chat with the Chatbot</h4>
+                </div>
+                <div class="card-body">
+                    <form id="queryForm" class="mb-4">
+                        <label for="question" class="form-label">Ask a Question About Your Uploaded Documents</label>
+                        <input type="text" class="form-control" id="question" name="question" required>
+                        <button type="submit" class="btn btn-success mt-2">Submit</button>
+                    </form>
+        
+                    <div id="chatWindow"
+                        class="mb-4"
+                        style="height: 300px; overflow-y: auto; background: #f8f8f8; padding: 1rem; border-radius: 8px;">
+                        <!-- Chat history will appear here -->
+                    </div>
+        
+                    <form id="chatForm" class="d-flex">
+                        <input type="text" class="form-control me-2" id="chatMessage" placeholder="Type your message..." required>
+                        <button type="submit" class="btn btn-success">Send</button>
+                    </form>
+                </div>
             </div>
-            <form id="chatForm" class="d-flex">
-              <input type="text" class="form-control me-2" id="chatMessage" placeholder="Type your message..." required>
-              <button type="submit" class="btn btn-primary">Send</button>
-            </form>
         </div>
     </div>
 </div>
@@ -109,7 +118,7 @@
     const res = await fetch('/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: userMessage})
+      body: JSON.stringify({message: userMessage})
     });
     const data = await res.json();
     

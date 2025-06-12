@@ -44,6 +44,7 @@ def ask_question():
         return jsonify({"error": "No question provided."}), 400
 
     result = answer_question_with_themes(user_question)
+    session_history.append(AIMessage(content = str(result)))
     return jsonify(result)
 
 @app.route("/chat", methods=["POST"])
@@ -51,10 +52,9 @@ def chat():
     user_message = request.json.get("message")
     if not user_message:
         return jsonify({"error": "No message provided."}), 400
-    
-    session_history.append(HumanMessage(content=user_message))
 
     try:
+        session_history.append(HumanMessage(content=user_message))
         bot_response = chatbot(session_history)
         session_history.append(AIMessage(content=bot_response))
         return jsonify({"response": bot_response})

@@ -52,10 +52,9 @@ Return your answer in this JSON format:
     }}
   ]
 }}
-
 """
     model = model_call()
-    # # Run Model call
+
     response = model.invoke(prompt)
     try:
         # Clean the response content and parse JSON
