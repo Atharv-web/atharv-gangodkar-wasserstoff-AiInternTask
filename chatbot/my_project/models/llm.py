@@ -1,12 +1,11 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
+
+from langchain_ollama import ChatOllama
 import os
 import json
 from dotenv import load_dotenv
 load_dotenv()
 
-API_KEY = os.environ['GEMINI_API_KEY']
-model = ChatGoogleGenerativeAI(model='gemini-2.0-flash',api_key = API_KEY)
-# model = ChatOllama(model="qwen2.5:14b")
+model = ChatOllama(model="qwen2.5:14b")
 
 def get_answer_and_themes(query, retrieved_docs):
 
