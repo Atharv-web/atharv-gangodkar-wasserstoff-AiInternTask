@@ -17,7 +17,7 @@
     <h2 class="mb-4">Wasserstoff Gen-AI Chatbot</h2>
     <div class="chatbox">
         <form id="uploadForm" enctype="multipart/form-data">
-            <label for="documents" class="form-label">Upload Documents (PDF, TXT, PNG, JPG)</label>
+            <label for="documents" class="form-label">Upload Documents</label>
             <input class="form-control" type="file" id="documents" name="documents" multiple required>
             <button type="submit" class="btn btn-primary mt-3">Upload</button>
         </form>
@@ -25,7 +25,7 @@
         <hr class="my-4">
 
         <form id="queryForm">
-            <label for="question" class="form-label">Ask a Question</label>
+            <label for="question" class="form-label">Ask a Question About your uploaded file/doc</label>
             <input type="text" class="form-control" id="question" name="question" required>
             <button type="submit" class="btn btn-success mt-2">Submit</button>
         </form>
