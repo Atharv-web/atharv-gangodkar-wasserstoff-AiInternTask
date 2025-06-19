@@ -1,75 +1,33 @@
-
-from langchain_ollama import ChatOllama
-import json
+from langchain_core.messages import SystemMessage
+from langchain_google_genai import ChatGoogleGenerativeAI
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
+API_KEY = os.environ["GEMINI_API_KEY"]
+
 def model_call():
-  model = ChatOllama(model="qwen2.5:14b")
+  model = ChatGoogleGenerativeAI(model="gemini-2.0-flash",api_key = API_KEY)
   return model
 
-def get_answer_and_themes(query, retrieved_docs):
+def get_response(session_history):
+  model = model_call()
+  for entry in session_history:
+    if "retrieved_context" in entry:
+        context = entry["retrieved_context"]
 
-    formatted_context = "\n".join(
-        f" Context: {doc.page_content}\nMetadata: {doc.metadata}" for doc in retrieved_docs
-    )
-    
-    prompt = f"""
 
-You are a Document Research Chatbot.
+  prompt = f"""
+You are an assistant for question-answering tasks related to the users uploaded documents. Use the following pieces of retrieved context to answer the question. 
+If you don't know the answer, just say that you don't know. Keep the answer concise. 
+Context: {context}
 
-A user asked:
-"{query}"
-
-Here are relevant excerpts from documents extracted:
-
-{formatted_context}
-
-Your task:
-1. Provide a concise answer that is relevant to the query.
-2. Each answer, must include:
-   - document_id (use title from metadata in formatted_context)
-   - extracted_answer (the extracted content from the document)
-   - citation (e.g., page number, paragraph reference, from metadata)
-3. Identify the theme from the context:
-   - Provide the theme title
-   - Give a brief summary
-
-Return your answer in this JSON format:
-
-{{
-  "answers": [
-    {{
-      "document_id" : "use information from metadata in formatted_context",
-      "extracted_answers" : "the extracted content from the document",
-      "citation" : "page number, paragraph reference, from metadata"
-    }}
-  ],
-  "themes": [
-    {{
-      "theme" : "Theme title",
-      "summary" : "Brief Summary abt the extracted answer and theme"
-    }}
-  ]
-}}
 """
-    model = model_call()
+  session_history.append(SystemMessage(content=prompt))
 
-    response = model.invoke(prompt)
-    try:
-        # Clean the response content and parse JSON
-        content = response.content.strip()
-        # Remove any markdown code block indicators if present
-        content = content.replace('```json', '').replace('```', '').strip()
-        result = json.loads(content)
-        return result
-    
-    except json.JSONDecodeError as e:
-        print(f"JSON parsing error: {str(e)}")
-        return {
-            "answers": [],
-            "themes": [{
-                "theme": "Error",
-                "summary": f"Failed to parse model response as JSON: {str(e)}",
-            }]
-        }
+
+  try:
+    response = model.invoke(session_history)
+    return response.content
+  except Exception as e:
+    return f"Loading Error Bitch!!, btw the error is :{e}"

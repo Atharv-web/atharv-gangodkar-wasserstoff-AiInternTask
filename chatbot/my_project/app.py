@@ -2,19 +2,20 @@ from flask import Flask, request, render_template, jsonify
 from langchain_core.messages import HumanMessage,AIMessage
 from werkzeug.utils import secure_filename
 import os
-from services.vector_db import process_and_store_documents
-from services.query import answer_question_with_themes,chatbot
+from services.load_process_docs import ALLOWED_EXTENSIONS
+from services.StoreDocs import process_and_store_documents
+from services.query import answer_query_chatbot,retrieve_docs
 from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
 FOLDER = os.path.join(os.getcwd(),"data")
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "data", "uploads")
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'txt'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 session_history = []
+flag = None
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -35,35 +36,32 @@ def upload_files():
             file_paths.append(path)
 
     process_and_store_documents(file_paths)
+    flag = 1
     return jsonify({"message": "Documents uploaded and processed."})
-
-@app.route("/ask", methods=["POST"])
-def ask_question():
-    user_question = request.form.get("question")
-    if not user_question:
-        return jsonify({"error": "No question provided."}), 400
-
-    result = answer_question_with_themes(user_question)
-    session_history.append(AIMessage(content = str(result)))
-    return jsonify(result)
+    
 
 @app.route("/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message")
     if not user_message:
         return jsonify({"error": "No message provided."}), 400
-
-    try:
-        session_history.append(HumanMessage(content=user_message))
-        bot_response = chatbot(session_history)
-        session_history.append(AIMessage(content=bot_response))
-        return jsonify({"response": bot_response})
     
-    except Exception as e:
-        return jsonify({
-            "response": "⚠️ Sorry, an unexpected error occurred.",
-            "error": str(e)
-        }), 500
+    if flag == True:
+        retrieved_docs = retrieve_docs(user_message)
+        session_history.append({"retrieved_context":retrieved_docs})
+
+    else:
+        try:
+            session_history.append(HumanMessage(content=user_message))
+            bot_response = answer_query_chatbot(session_history)
+            session_history.append(AIMessage(content=bot_response))
+            return jsonify({"response": bot_response})
+        
+        except Exception as e:
+            return jsonify({
+                "response": "⚠️ Sorry, an unexpected error occurred.",
+                "error": str(e)
+            }), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))

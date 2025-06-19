@@ -1,11 +1,22 @@
-from models.llm import get_answer_and_themes,model_call
-from models.embeddings import semantic_search
 
-def answer_question_with_themes(query):
-    top_docs = semantic_search(query)
-    return get_answer_and_themes(query, top_docs)
-    
-def chatbot(chat_history):
-    model = model_call()
-    response = model.invoke(chat_history)
-    return response.content
+from models.embeddings import DATABASE_NAME
+from langchain_community.vectorstores import FAISS
+from models.embeddings import EMBEDDER_MODEL
+from models.llm import get_response
+
+def retrieve_docs(query):
+    global vectordatabase
+
+    vectordatabase = FAISS.load_local(
+        DATABASE_NAME,
+        embeddings=EMBEDDER_MODEL,
+        allow_dangerous_deserialization=True,
+    )
+    retriever = vectordatabase.as_retriever(
+        search_kwargs={"k": 3}
+    )
+    retrieved_docs = retriever.invoke(query)
+    return retrieved_docs
+
+def answer_query_chatbot(session_history):
+    return get_response(session_history)
