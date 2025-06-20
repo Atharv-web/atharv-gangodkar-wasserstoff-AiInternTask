@@ -26,6 +26,7 @@ def index():
 
 @app.route("/upload", methods=["POST"])
 def upload_files():
+    global flag # Ensure we are modifying the global flag
     files = request.files.getlist("documents")
     file_paths = []
     for file in files:
@@ -46,10 +47,10 @@ def chat():
     if not user_message:
         return jsonify({"error": "No message provided."}), 400
     
-    if flag == True:
+    if flag == 1:
         retrieved_docs = retrieve_docs(user_message)
         session_history.append({"retrieved_context":retrieved_docs})
-
+        return jsonify({"retrieved_docs": retrieved_docs})
     else:
         try:
             session_history.append(HumanMessage(content=user_message))
