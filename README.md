@@ -104,10 +104,4 @@ Make sure to set all environment variables in your hosting dashboard.
 
 See `chatbot/requirements.txt` for the full list.
 
-## License
-
-[MIT](LICENSE) (or specify your license)
-
----
-
 **Contributions are welcome!**
